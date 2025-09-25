@@ -41,12 +41,12 @@ Desktop.ini
 # -------------------------
 # Project-specific
 # -------------------------
-# Data (optional: keep only small sample/test data in Git)
+# Data (keep only essential npz)
 data/
-!data/kmnist-test-*.npz   # allow test sets (since needed by app)
-!data/kmnist-train-*.npz  # allow training sample if required
+!data/kmnist-test-*.npz
+!data/kmnist-train-*.npz
 
-# Models (optional: ignore large models, track only final ones)
+# Models (track final .pt models only)
 models/
 !models/*.pt
 
@@ -54,7 +54,6 @@ models/
 *.log
 logs/
 runs/
-outputs/
 
 # Cache
 .cache/
@@ -62,3 +61,4 @@ __cache__/
 
 # Outputs
 outputs/
+!outputs/images/
