@@ -1,0 +1,61 @@
+# -------------------------
+# Python
+# -------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.egg
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+.conda/
+*.conda
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_convert/
+
+# -------------------------
+# OS
+# -------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.Trash-*
+
+# -------------------------
+# Project-specific
+# -------------------------
+# Data (optional: keep only small sample/test data in Git)
+data/
+!data/kmnist-test-*.npz   # allow test sets (since needed by app)
+!data/kmnist-train-*.npz  # allow training sample if required
+
+# Models (optional: ignore large models, track only final ones)
+models/
+!models/*.pt
+
+# Logs / experiments
+*.log
+logs/
+runs/
+outputs/
+
+# Cache
+.cache/
+__cache__/
