@@ -324,4 +324,4 @@ with gr.Blocks() as demo:
 
 if __name__ == "__main__":
     # On Spaces this is ignored; locally it runs the app.
-    demo.launch()
+    demo.launch(share=True)
