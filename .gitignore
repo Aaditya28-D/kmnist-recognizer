@@ -46,10 +46,6 @@ data/
 !data/kmnist-test-*.npz
 !data/kmnist-train-*.npz
 
-# Models (track final .pt models only)
-models/
-!models/*.pt
-
 # Logs / experiments
 *.log
 logs/

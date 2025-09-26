@@ -34,7 +34,7 @@ pip install -r requirements.txt
 ---
 
 ### 3. Download model & data files  
-Run this script once to set up the model and test data (they will be downloaded from Google Drive automatically):  
+Run this script once to set up test data (they will be downloaded from Google Drive automatically):  
 
 ```bash
 python setup_assets.py

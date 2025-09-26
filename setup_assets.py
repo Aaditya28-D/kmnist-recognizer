@@ -14,7 +14,6 @@ from pathlib import Path
 FILES = {
     "data/kmnist-test-imgs.npz": "1bzZGMABGG95sKc7EBQmEs8rscsev86L8",
     "data/kmnist-test-labels.npz": "19Tdg0xJ11Ce1AYHtin2rYR7jlmWB7w8p",
-    "models/mlp_model.pt": "1pyl1l7ribZ3lTgSdekWdU1LQJpUYI12c"
 }
 
 def ensure_assets():
