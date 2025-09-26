@@ -1,4 +1,3 @@
-# src/kmnist/infer.py
 from pathlib import Path
 import numpy as np
 from PIL import Image
@@ -18,18 +17,24 @@ def pick_device():
 # ---------- arch builder ----------
 def detect_arch_from_filename(p: Path) -> str:
     name = p.stem.lower()
-    if any(k in name for k in ["mlp", "perceptron"]): return "mlp"
+    if any(k in name for k in ["mlp", "perceptron"]): 
+        return "mlp"
     return "mlp"
 
 def build_model(arch_key: str):
-    if arch_key == "mlp": return MLPWide(0.35)
+    if arch_key == "mlp": 
+        return MLPWide(0.35)
     raise ValueError(f"Unknown architecture key: {arch_key}")
 
 # ---------- model discovery ----------
 def discover_models(models_dir: Path) -> dict:
     out = {}
     for f in sorted(models_dir.glob("*.pt")):
-        ui_name = f.stem.replace("_"," ").title()
+        # friendly name for UI
+        if f.name == "best.pt":
+            ui_name = "Best Model"
+        else:
+            ui_name = f.stem.replace("_"," ").title()
         out[ui_name] = {"path": str(f), "arch": detect_arch_from_filename(f)}
     if not out:
         raise FileNotFoundError(f"No .pt files in {models_dir}")

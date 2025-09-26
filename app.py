@@ -2,9 +2,10 @@
 
 import os
 from pathlib import Path
+import re
 import numpy as np
 
-# Use a headless backend for Hugging Face Spaces / servers
+# Headless backend for servers / Spaces
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -35,10 +36,24 @@ DATA_DIR   = find_dir("data")
 MODELS_DIR = find_dir("models")
 
 
-def friendly_name_from_filename(p: Path) -> str:
-    """Turn 'mlp_swa.pt' -> 'Mlp Swa' (nice for UI)."""
-    return p.stem.replace("_", " ").title()
+def _extract_version(p: Path) -> int | None:
+    """
+    Return integer version if filename contains _vNNN (e.g., v003 -> 3); else None.
+    """
+    m = re.search(r"_v(\d+)$", p.stem.lower())
+    return int(m.group(1)) if m else None
 
+def friendly_name_from_filename(p: Path) -> str:
+    """
+    - best.pt -> 'Best Model'
+    - mlp_model_v003.pt -> 'Mlp Model (v3)'
+    - multilayer_perceptron.pt -> 'Multilayer Perceptron'
+    """
+    if p.name.lower() == "best.pt":
+        return "Best Model"
+    stem = p.stem.replace("_", " ").title()
+    v = _extract_version(p)
+    return f"{stem} (v{v})" if v is not None else stem
 
 def detect_arch_from_filename(p: Path) -> str:
     """
@@ -53,20 +68,39 @@ def detect_arch_from_filename(p: Path) -> str:
 
 def discover_models(models_dir: Path) -> dict:
     """
-    Scan models_dir for *.pt files.
-    Returns: {ui_name: {"path": str, "arch": "mlp" | ...}}
+    Scan models_dir for *.pt files and return an ordered dict-like mapping:
+    {ui_name: {"path": str, "arch": "mlp" | ...}}
+    Priority:
+      1) best.pt first (if present)
+      2) Then by version number (descending) for *_vNNN.pt
+      3) Then alphabetical
     """
+    files = sorted(models_dir.glob("*.pt"))
+    if not files:
+        raise FileNotFoundError(
+            f"No .pt files found in {models_dir}. "
+            "Place your trained weights (e.g. 'mlp_model_v001.pt' or 'best.pt') there."
+        )
+
+    def sort_key(p: Path):
+        # best.pt should come first
+        if p.name.lower() == "best.pt":
+            return (0, 0, "")  # top priority
+        v = _extract_version(p)
+        # Put versioned models next, sorted by version DESC
+        if v is not None:
+            return (1, -v, p.stem.lower())
+        # Non-versioned fall to the bottom, alphabetically
+        return (2, 0, p.stem.lower())
+
+    files_sorted = sorted(files, key=sort_key)
+
     out = {}
-    for f in sorted(models_dir.glob("*.pt")):
+    for f in files_sorted:
         out[friendly_name_from_filename(f)] = {
             "path": str(f),
             "arch": detect_arch_from_filename(f),
         }
-    if not out:
-        raise FileNotFoundError(
-            f"No .pt files found in {models_dir}. "
-            "Place your trained weights (e.g. 'multilayer_perceptron_model.pt') there."
-        )
     return out
 
 ALL_MODELS = discover_models(MODELS_DIR)
@@ -323,5 +357,4 @@ with gr.Blocks() as demo:
 
 
 if __name__ == "__main__":
-    # On Spaces this is ignored; locally it runs the app.
     demo.launch(share=True)
