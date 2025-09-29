@@ -47,17 +47,6 @@ This will:
 
 ---
 
-### (Optional) Upload new models  
-If you train new models and want to save them to Drive for sharing/reproducibility:  
-
-```bash
-python upload_models.py --folder-id <your-drive-folder-id>
-```
-
-This updates `models_index.json` so others can download the new model with `setup_assets.py`.  
-
----
-
 ### 4. Start the app  
 Finally, run:  
 
