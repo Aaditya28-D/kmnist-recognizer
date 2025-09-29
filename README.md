@@ -16,8 +16,8 @@ If you want to run this project on your own computer:
 Download this project to your computer (from GitHub):  
 
 ```bash
-git clone https://github.com/Aaditya28-D/kmnist-recognizer.git
-cd kmnist-recognizer
+git clone --branch starter --single-branch https://github.com/Aaditya28-D/kmnist-recognizer.git kmnist-starter
+cd kmnist-starter
 ```
 
 *(If you don’t have Git, you can also click **Download ZIP** on GitHub and unzip it.)*
