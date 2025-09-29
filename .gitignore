@@ -59,5 +59,14 @@ __cache__/
 outputs/
 !outputs/images/
 
-# Ignore trained models
-models/*.pt
+# -------------------------
+# Models
+# -------------------------
+# Ignore trained model weights in root models/ folder
+/models/*.pt
+
+# Ignore any accidental .pt files inside src/ models
+src/**/models/*.pt
+
+# But keep all Python model definitions inside src/
+!src/**/models/*.py
