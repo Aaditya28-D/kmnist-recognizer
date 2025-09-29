@@ -70,3 +70,18 @@ src/**/models/*.pt
 
 # But keep all Python model definitions inside src/
 !src/**/models/*.py
+
+/client_secrets.json
+/token.json
+
+# Extra model formats (optional)
+models/*.pth
+models/*.ckpt
+models/*.safetensors
+src/**/models/*.pth
+src/**/models/*.ckpt
+src/**/models/*.safetensors
+
+# IDE/editor (optional)
+.vscode/
+.idea/
