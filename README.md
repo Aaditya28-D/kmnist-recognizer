@@ -37,7 +37,7 @@ pip install -r requirements.txt
 Run this script once to set up **test data** and download the **latest trained models** from Google Drive:  
 
 ```bash
-python setup_assets.py
+python3 setup_assets.py
 ```
 
 This will:  
