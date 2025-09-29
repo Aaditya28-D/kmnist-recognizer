@@ -34,11 +34,27 @@ pip install -r requirements.txt
 ---
 
 ### 3. Download model & data files  
-Run this script once to set up test data (they will be downloaded from Google Drive automatically):  
+Run this script once to set up **test data** and download the **latest trained models** from Google Drive:  
 
 ```bash
 python setup_assets.py
 ```
+
+This will:  
+- Download `kmnist-train` and `kmnist-test` data automatically.  
+- Fetch the **latest model weights** listed in `models_index.json`.  
+- Store them in the `models/` folder.  
+
+---
+
+### (Optional) Upload new models  
+If you train new models and want to save them to Drive for sharing/reproducibility:  
+
+```bash
+python upload_models.py --folder-id <your-drive-folder-id>
+```
+
+This updates `models_index.json` so others can download the new model with `setup_assets.py`.  
 
 ---
 
