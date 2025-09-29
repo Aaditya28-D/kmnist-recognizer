@@ -58,3 +58,6 @@ __cache__/
 # Outputs
 outputs/
 !outputs/images/
+
+# Ignore trained models
+models/*.pt
