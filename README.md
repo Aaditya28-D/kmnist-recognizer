@@ -1,38 +1,77 @@
-## 🚀 How to Run Locally  
+# ✨ KMNIST Recognizer (Gradio)
 
-If you want to run this project on your own computer:
+A simple KMNIST handwritten kana recognizer with a Gradio UI.
 
-### 1. Get the project
+✅ **Lazy-user friendly**: On first run, the app automatically downloads required assets (test data + models) from Google Drive.
 
+---
+
+## 🔗 Live Demo
+Run on Hugging Face Spaces (no setup needed).
+
+---
+
+## 🚀 Run Locally
+
+### 1) Clone the repository
 ```bash
 git clone https://github.com/Aaditya28-D/kmnist-recognizer.git
 cd kmnist-recognizer
 ```
 
-*(If you don’t have Git, you can also click **Download ZIP** on GitHub and unzip it.)*
+### 2) Create a virtual environment (recommended)
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
 
----
-
-### 2. Install requirements
-
+### 3) Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
-### 3. Run the app
-
+### 4) Run the app
 ```bash
 python3 app.py
 ```
 
-When the app starts for the **first time**, it will automatically:
+On the **first run**, the app automatically:
 
-- Download the required **KMNIST test dataset**
-- Download the **latest trained models**
-- Store them in the correct folders
-- Launch the web interface
+- downloads KMNIST test data into `data/`
+- downloads trained models into `models/`
+- opens the UI in your browser
 
-Your browser will open automatically.
+If the browser doesn’t open, go to:
 
+http://127.0.0.1:7860
+
+---
+
+## 🌍 Optional: Enable a public share link
+
+By default, the app runs locally (faster).  
+If you want a temporary public Gradio link, run:
+
+```bash
+GRADIO_SHARE=1 python3 app.py
+```
+
+---
+
+## 🧠 Project Structure (important files)
+
+- `app.py` — Gradio UI entrypoint  
+- `src/kmnist/infer.py` — inference pipeline  
+- `src/kmnist/models/mlp.py` — model architecture  
+- `src/kmnist/assets.py` — auto-download assets if missing  
+- `src/kmnist/data.py` — loads test dataset  
+- `setup_assets.py` — downloads assets from Google Drive  
+- `models_index.json` — model registry (filenames + Drive IDs)
+
+---
+
+## 🧪 Training
+
+Training notebooks are available in:
+
+notebooks/
