@@ -68,10 +68,3 @@ GRADIO_SHARE=1 python3 app.py
 - `setup_assets.py` — downloads assets from Google Drive  
 - `models_index.json` — model registry (filenames + Drive IDs)
 
----
-
-## 🧪 Training
-
-Training notebooks are available in:
-
-notebooks/

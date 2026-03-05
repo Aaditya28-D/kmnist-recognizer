@@ -1,9 +1,7 @@
 # app.py — KMNIST Gradio app (pretty labels + legend)
 
 from pathlib import Path
-import subprocess
-import sys
-
+import os
 import numpy as np
 from PIL import Image
 import gradio as gr
@@ -13,24 +11,15 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-# Project imports (modularized)
+# Modular imports
+from src.kmnist.assets import ensure_assets
+from src.kmnist.data import load_kmnist_test
 from src.kmnist.infer import discover_models, predict_from_pil, pick_device
 from src.kmnist.labels import KMNIST_CLASSES, KANA, PRON
 
 
-# ------------------------- Assets bootstrap (lazy-user friendly) -------------------------
-def ensure_assets():
-    """
-    Ensure data/ and models/ exist. If missing, run setup_assets.py automatically.
-    This makes 'python app.py' work even if the user forgot the setup step.
-    """
-    root = Path(__file__).resolve().parent
-    data_dir = root / "data"
-    models_dir = root / "models"
-
-    if not data_dir.exists() or not models_dir.exists():
-        print("Required assets not found. Running setup_assets.py ...")
-        subprocess.run([sys.executable, str(root / "setup_assets.py")], check=True)
+# ------------------------- Ensure assets exist -------------------------
+ensure_assets()
 
 
 # ------------------------- Paths -------------------------
@@ -44,65 +33,48 @@ def find_dir(dirname: str) -> Path:
     raise FileNotFoundError(f"Could not find '{dirname}' near {here}")
 
 
-# Run asset setup BEFORE we try to locate data/models.
-ensure_assets()
-
-DATA_DIR   = find_dir("data")
+DATA_DIR = find_dir("data")
 MODELS_DIR = find_dir("models")
 
 ALL_MODELS = discover_models(MODELS_DIR)
-device     = pick_device()
+device = pick_device()
 
 
 # ------------------------- Pretty labels & helpers -------------------------
 def pretty_label(romaji: str) -> str:
-    """
-    Format a class label like: o → お — “oh”
-    Used in Top-1 text and in the Top-3 legend.
-    """
+    """Format: o → お — “oh”"""
     kana = KANA.get(romaji, "")
     pron = PRON.get(romaji, "")
     return f"`{romaji}` {kana} — {pron}"
+
 
 def probs_to_fig(probs, classes):
     idx = np.argsort(-probs)[:10]
     fig, ax = plt.subplots(figsize=(5, 2.8))
     ax.bar(range(len(idx)), probs[idx])
     ax.set_xticks(range(len(idx)))
-    # show romaji only; the Top-1 area shows kana + pron
-    ax.set_xticklabels([classes[i] for i in idx])
+    ax.set_xticklabels([classes[i] for i in idx])  # romaji only
     ax.set_ylim(0, 1)
     ax.set_ylabel("prob.")
     ax.grid(axis="y", alpha=0.25)
     fig.tight_layout()
     return fig
 
-# cached test set for the “Sample” tab
-_KX = _KY = None
-def load_kmnist_test():
-    global _KX, _KY
-    if _KX is not None:
-        return _KX, _KY
-    imgs = DATA_DIR / "kmnist-test-imgs.npz"
-    labs = DATA_DIR / "kmnist-test-labels.npz"
-    _KX = np.load(imgs)["arr_0"]   # (10000, 28, 28) uint8
-    _KY = np.load(labs)["arr_0"]   # (10000,) int
-    return _KX, _KY
-
 
 # ------------------------- Predict wrappers -------------------------
 def ui_predict_from_pil(pil_img: Image.Image, which_model: str):
     if pil_img is None:
         return "—", {}, None, None
+
     probs, top1, native_28 = predict_from_pil(pil_img, which_model, ALL_MODELS, device)
 
     romaji = KMNIST_CLASSES[top1]
     md = f"**Top-1:** {pretty_label(romaji)}  *(p={probs[top1]:.3f})*"
 
-    # Top-3 dict keeps romaji keys (Gradio Label expects plain keys)
     top3 = {KMNIST_CLASSES[i]: float(probs[i]) for i in np.argsort(-probs)[:3]}
-    fig  = probs_to_fig(probs, KMNIST_CLASSES)
+    fig = probs_to_fig(probs, KMNIST_CLASSES)
     return md, top3, fig, native_28
+
 
 def ui_predict_from_sketch(data, which_model: str):
     if data is None:
@@ -113,8 +85,11 @@ def ui_predict_from_sketch(data, which_model: str):
     if isinstance(data, dict):
         arr = data.get("image") or data.get("composite")
         if arr is None and data.get("layers"):
-            layers = [np.asarray(l.get("image") if isinstance(l, dict) else l)
-                      for l in data["layers"] if (l is not None)]
+            layers = [
+                np.asarray(l.get("image") if isinstance(l, dict) else l)
+                for l in data["layers"]
+                if l is not None
+            ]
             if layers:
                 arr = np.maximum.reduce(layers)
     else:
@@ -125,16 +100,19 @@ def ui_predict_from_sketch(data, which_model: str):
 
     arr = np.asarray(arr)
     if arr.ndim == 3:
-        arr = arr.mean(axis=2)  # HxWxC -> gray
+        arr = arr.mean(axis=2)
     arr = (arr * 255).astype(np.uint8) if arr.max() <= 1.0 else arr.astype(np.uint8)
     pil = Image.fromarray(arr).convert("L")
 
     return ui_predict_from_pil(pil, which_model)
 
+
 def ui_predict_from_label(label_str: str, which_model: str):
     x_test, y_test = load_kmnist_test()
+
     if label_str not in KMNIST_CLASSES:
         return "—", {}, None, None, None
+
     label_idx = KMNIST_CLASSES.index(label_str)
     idxs = np.where(y_test == label_idx)[0]
     if len(idxs) == 0:
@@ -156,8 +134,11 @@ with gr.Blocks(css=custom_css) as demo:
 
     with gr.Row():
         with gr.Column(scale=1):
-            gr.Markdown("Pick a model, then upload, draw, or sample a character. "
-                        "Images are shown at **true 28×28**; use the ⤢ button to zoom.")
+            gr.Markdown(
+                "Pick a model, then upload, draw, or sample a character. "
+                "Images are shown at **true 28×28**; use the ⤢ button to zoom."
+            )
+
             model_choice = gr.Dropdown(
                 choices=list(ALL_MODELS.keys()),
                 value=list(ALL_MODELS.keys())[0],
@@ -181,20 +162,32 @@ with gr.Blocks(css=custom_css) as demo:
                 gr.Markdown(legend, elem_classes=["kana-note"])
 
         with gr.Column(scale=1):
-            top1_out  = gr.Markdown("Top-1: —", elem_classes=["bold-head"])
-            top3_out  = gr.Label(num_top_classes=3, label="Top-3 (romaji keys)")
+            top1_out = gr.Markdown("Top-1: —", elem_classes=["bold-head"])
+            top3_out = gr.Label(num_top_classes=3, label="Top-3 (romaji keys)")
             chart_out = gr.Plot(label="Probabilities")
-            native28  = gr.Image(type="pil", label="Your 28×28 (native)",
-                                  show_fullscreen_button=True, interactive=False)
-            sample28  = gr.Image(type="pil", label="Sampled 28×28",
-                                  show_fullscreen_button=True, interactive=False)
+            native28 = gr.Image(
+                type="pil",
+                label="Your 28×28 (native)",
+                show_fullscreen_button=True,
+                interactive=False,
+            )
+            sample28 = gr.Image(
+                type="pil",
+                label="Sampled 28×28",
+                show_fullscreen_button=True,
+                interactive=False,
+            )
 
-    btn_up.click(ui_predict_from_pil,     inputs=[up,  model_choice],
+    btn_up.click(ui_predict_from_pil, inputs=[up, model_choice],
                  outputs=[top1_out, top3_out, chart_out, native28])
     btn_pad.click(ui_predict_from_sketch, inputs=[pad, model_choice],
-                 outputs=[top1_out, top3_out, chart_out, native28])
+                  outputs=[top1_out, top3_out, chart_out, native28])
     btn_sample.click(ui_predict_from_label, inputs=[sample_label, model_choice],
-                 outputs=[top1_out, top3_out, chart_out, native28, sample28])
+                     outputs=[top1_out, top3_out, chart_out, native28, sample28])
+
 
 if __name__ == "__main__":
-    demo.launch(share=False, inbrowser=True)
+    # Faster by default (no public tunnel). To enable public link:
+    #   GRADIO_SHARE=1 python3 app.py
+    share = os.getenv("GRADIO_SHARE", "0") == "1"
+    demo.launch(share=share, inbrowser=True)

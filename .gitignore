@@ -101,3 +101,7 @@ token.json
 data/
 models/
 .gradio/
+
+# gradio temp files
+.gradio/
+notebooks/.gradio/
