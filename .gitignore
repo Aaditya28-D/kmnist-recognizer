@@ -85,3 +85,19 @@ src/**/models/*.safetensors
 # IDE/editor (optional)
 .vscode/
 .idea/
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Secrets
+client_secrets.json
+token.json
+
+# Local assets (kept in Drive)
+data/
+models/
+.gradio/

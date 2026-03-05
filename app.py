@@ -1,6 +1,9 @@
 # app.py — KMNIST Gradio app (pretty labels + legend)
 
 from pathlib import Path
+import subprocess
+import sys
+
 import numpy as np
 from PIL import Image
 import gradio as gr
@@ -15,6 +18,21 @@ from src.kmnist.infer import discover_models, predict_from_pil, pick_device
 from src.kmnist.labels import KMNIST_CLASSES, KANA, PRON
 
 
+# ------------------------- Assets bootstrap (lazy-user friendly) -------------------------
+def ensure_assets():
+    """
+    Ensure data/ and models/ exist. If missing, run setup_assets.py automatically.
+    This makes 'python app.py' work even if the user forgot the setup step.
+    """
+    root = Path(__file__).resolve().parent
+    data_dir = root / "data"
+    models_dir = root / "models"
+
+    if not data_dir.exists() or not models_dir.exists():
+        print("Required assets not found. Running setup_assets.py ...")
+        subprocess.run([sys.executable, str(root / "setup_assets.py")], check=True)
+
+
 # ------------------------- Paths -------------------------
 def find_dir(dirname: str) -> Path:
     """Find a folder named `dirname` near CWD (./, ../, ../../)."""
@@ -24,6 +42,10 @@ def find_dir(dirname: str) -> Path:
         if cand.exists() and cand.is_dir():
             return cand.resolve()
     raise FileNotFoundError(f"Could not find '{dirname}' near {here}")
+
+
+# Run asset setup BEFORE we try to locate data/models.
+ensure_assets()
 
 DATA_DIR   = find_dir("data")
 MODELS_DIR = find_dir("models")
