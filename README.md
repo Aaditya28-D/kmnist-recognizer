@@ -2,12 +2,7 @@
 
 A simple KMNIST handwritten kana recognizer with a Gradio UI.
 
-✅ **Lazy-user friendly**: On first run, the app automatically downloads required assets (test data + models) from Google Drive.
-
----
-
-## 🔗 Live Demo
-Run on Hugging Face Spaces (no setup needed).
+✅ **User friendly**: On first run, the app automatically downloads required assets (test data + models) from Google Drive.
 
 ---
 
