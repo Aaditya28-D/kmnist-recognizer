@@ -197,4 +197,4 @@ with gr.Blocks(css=custom_css) as demo:
                  outputs=[top1_out, top3_out, chart_out, native28, sample28])
 
 if __name__ == "__main__":
-    demo.launch(share=True)
+    demo.launch(share=False, inbrowser=True)
